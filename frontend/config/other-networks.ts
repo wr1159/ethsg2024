@@ -36,3 +36,12 @@ export const lineaSepolia: CaipNetwork = {
     explorerUrl: "https://explorer.linea.network/",
     rpcUrl: "https://rpc.sepolia.linea.build",
 };
+export const hardhat: CaipNetwork = {
+    id: "eip155:31337",
+    chainId: 31337,
+    chainNamespace: "eip155",
+    name: "Hardhat",
+    currency: "ETH",
+    explorerUrl: "aa",
+    rpcUrl: "http://localhost:8545",
+};

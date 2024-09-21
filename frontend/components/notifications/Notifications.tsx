@@ -1,34 +1,53 @@
 import { useNotifications, useSubscription } from "@web3inbox/react";
 import React from "react";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "../ui/card";
+import { Button } from "../ui/button";
 
 function Notifications() {
     const { data: subscription } = useSubscription();
     const { data: notifications } = useNotifications(5);
 
     return (
-        <div>
-            <h2>Notifications</h2>
-            <p>
-                You have {subscription?.unreadNotificationCount} unread
-                notifications.
-            </p>
-            <div>
+        <Card>
+            <CardHeader>
+                <CardTitle>Notifications</CardTitle>
+                <CardDescription>
+                    You have {subscription?.unreadNotificationCount} unread
+                    notifications.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2">
                 {!notifications?.length ? (
                     <p>No notifications yet.</p>
                 ) : (
                     notifications.map(({ id, ...message }) => (
-                        <div key={id}>
-                            <h3>{message.title}</h3>
-                            <p>{message.body}</p>
-                            <p>{message.isRead ? "Read" : "Unread"}</p>
-                            <button onClick={message?.read}>
-                                Mark as read
-                            </button>
+                        <div key={id} className="border rounded p-4 min-h-32">
+                            <p className="text-destructive">
+                                {!message.isRead && "UNREAD"}
+                            </p>
+                            <h3 className="text-xl">{message.title}</h3>
+                            <p className="text-muted-foreground font-extralight">
+                                {message.body}
+                            </p>
+                            {!message.isRead && (
+                                <Button
+                                    onClick={message?.read}
+                                    className="mt-2"
+                                >
+                                    Mark as read
+                                </Button>
+                            )}
                         </div>
                     ))
                 )}
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 }
 

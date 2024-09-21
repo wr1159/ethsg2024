@@ -82,27 +82,28 @@ export default function App() {
                                 here!
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="flex gap-2 p-4">
-                            <Button
-                                onClick={handleRegistration}
-                                disabled={isRegistered}
-                                className="border "
-                                variant={"default"}
-                            >
-                                {isRegistered ? "Registered" : "Register"}
-                            </Button>
-                            <Button
-                                onClick={
-                                    isSubscribed
-                                        ? () => unsubscribe()
-                                        : () => subscribe()
-                                }
-                                disabled={isSubscribing || isUnsubscribing}
-                                variant={"secondary"}
-                            >
-                                {isSubscribed ? "Unsubscribe" : "Subscribe"}
-                            </Button>
-                            <hr />
+                        <CardContent className="flex-col gap-y-8 p-4">
+                            <div className="flex gap-2 mb-8">
+                                <Button
+                                    onClick={handleRegistration}
+                                    disabled={isRegistered}
+                                    className="border "
+                                    variant={"default"}
+                                >
+                                    {isRegistered ? "Registered" : "Register"}
+                                </Button>
+                                <Button
+                                    onClick={
+                                        isSubscribed
+                                            ? () => unsubscribe()
+                                            : () => subscribe()
+                                    }
+                                    disabled={isSubscribing || isUnsubscribing}
+                                    variant={"secondary"}
+                                >
+                                    {isSubscribed ? "Unsubscribe" : "Subscribe"}
+                                </Button>
+                            </div>
                             {isSubscribed ? <Notifications /> : null}
                         </CardContent>
                     </Card>

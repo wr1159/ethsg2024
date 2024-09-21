@@ -15,7 +15,7 @@ interface IBondingCurve {
 
     // ----------- State changing Api -----------
 
-    function purchase(address to, uint256 amountIn) external payable returns (UD60x18 amountOut);
+    function purchase(address from, address to, uint256 amountIn) external payable returns (UD60x18 amountOut);
 
     // ----------- Governor only state changing api -----------
 

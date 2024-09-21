@@ -39,15 +39,18 @@ contract Coinmunity is ERC721Holder {
 
 		// update states
 		SynthToken st = new SynthToken(name, symbol, address(this)); // deploy ERC20 SynthToken
+		st.mint(address(this), 1000 ** 18);
 		LinearBondingCurve lbc = new LinearBondingCurve(
 			weth,
 			st,
 			block.timestamp + 1000000000,
-			1000000,
+			1000 ** 18,
 			priceIncrement,
 			initialPrice,
 			nftExchangeRate
 		);
+		st.approve(address(lbc), 1000 ** 18);
+		lbc.init();
 		address curveAddress = address(lbc);
 		address tokenAddress = address(st);
 		isCollectionLaunched[curveAddress] = true;
@@ -60,14 +63,14 @@ contract Coinmunity is ERC721Holder {
 		LinearBondingCurve lbc = LinearBondingCurve(
 			getCurveFromCollection(collectionAddress)
 		);
-		lbc.purchase(msg.sender, amountIn);
+		lbc.purchase(msg.sender, msg.sender, amountIn);
 	}
 
 	function buyWithNFT(address collectionAddress, uint256 tokenId) public {
 		LinearBondingCurve lbc = LinearBondingCurve(
 			getCurveFromCollection(collectionAddress)
 		);
-		lbc.buyWithNFT(collectionAddress, tokenId);
+		lbc.buyWithNFT(msg.sender, collectionAddress, tokenId);
 	}
 
 	function getCurveFromCollection(

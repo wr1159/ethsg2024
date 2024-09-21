@@ -26,9 +26,9 @@ describe("Coinmunity", () => {
 		const name = "Coinmunity"
 		const symbol = "CMY"
 		const collectionAddress = erc721contractAddress
-		const initialPrice = 0.01
-		const priceIncrement = 0.01
-		const nftExchangeRate = 0.01
+		const initialPrice = parseEther("0.01")
+		const priceIncrement = parseEther("0.01")
+		const nftExchangeRate = parseEther("0.01")
 
 		const coinmunityContract = await ethers.deployContract(
 			"Coinmunity",
@@ -39,7 +39,7 @@ describe("Coinmunity", () => {
 		await coinmunityContract.launch(name, symbol, collectionAddress, initialPrice, priceIncrement, nftExchangeRate)
 
 		const wethContract = await ethers.getContractAt("IWETH", WETH_ADDRESS)
-		await wethContract.deposit({ value: parseEther("1") })
+		await wethContract.deposit({ value: parseEther("100") })
 		const wethContractAddress = await wethContract.getAddress()
 
 		return {
@@ -59,8 +59,10 @@ describe("Coinmunity", () => {
 			const { erc721contractAddress, coinmunityContract, coinmunityContractAddress, wethContractAddress, user } =
 				await setupFixture()
 
+			const lbcContractAddress = await coinmunityContract.getCurveFromCollection(erc721contractAddress)
 			const wethContract = await ethers.getContractAt("ERC20", wethContractAddress)
-			await wethContract.approve(coinmunityContractAddress, parseEther("0.01"))
+			await wethContract.approve(lbcContractAddress, parseEther("1000000"))
+			const userBalance = await wethContract.balanceOf(user)
 			await coinmunityContract.buyWithNative(erc721contractAddress, parseEther("0.01"))
 
 			const synthTokenAddress = await coinmunityContract.getTokenFromCollection(erc721contractAddress)
@@ -77,8 +79,9 @@ describe("Coinmunity", () => {
 			const { erc721contract, erc721contractAddress, coinmunityContract, coinmunityContractAddress, user } =
 				await setupFixture()
 
-			await erc721contract.approve(coinmunityContractAddress, 0)
-			await coinmunityContract.buyWithNFT(erc721contractAddress, 0)
+			const lbcContractAddress = await coinmunityContract.getCurveFromCollection(erc721contractAddress)
+			await erc721contract.approve(lbcContractAddress, 1)
+			await coinmunityContract.buyWithNFT(erc721contractAddress, 1)
 
 			const synthTokenAddress = await coinmunityContract.getTokenFromCollection(erc721contractAddress)
 			const synthTokenContract = await ethers.getContractAt("MockERC20", synthTokenAddress)

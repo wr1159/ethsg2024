@@ -104,7 +104,7 @@ const config: HardhatUserConfig = {
 			default: 0,
 		},
 		user: {
-			default: 1,
+			default: 0,
 		},
 	},
 	solidity: {

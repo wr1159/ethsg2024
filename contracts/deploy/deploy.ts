@@ -4,11 +4,17 @@ import { HardhatRuntimeEnvironment } from "hardhat/types"
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 	const { deployer, owner } = await hre.getNamedAccounts()
 
-	await hre.deployments.deploy("MockERC20", {
+	await hre.deployments.deploy("MockERC721", {
 		from: deployer,
-		args: [1000000,"MockERC20", "tRSK", owner],
+		args: ["MockERC721", "Noun", "ipfs://base-uri/", "ipfs://contract-uri", owner],
 		log: true,
 	})
+
+	await hre.deployments.deploy("Coinmunity", {
+		from: deployer,
+		args: ["0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"],
+		log: true,
+	})
+
 }
 export default func
-func.tags = ["20"]

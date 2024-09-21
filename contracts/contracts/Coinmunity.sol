@@ -88,6 +88,6 @@ contract Coinmunity is ERC721Holder {
 		IReverseRegistrar reverseRegistrarContract = IReverseRegistrar(reverseRegistrar);
 		bytes memory concatenatedBytes = abi.encodePacked(name, ".team");
         string memory concatenatedName = string(concatenatedBytes);
-		reverseRegistrarContract.setNameForAddr(addr, address(this), publicResolver, concatenatedName); // "pudgypenguins.team"
+		reverseRegistrarContract.setNameForAddr(addr, address(this), publicResolver, concatenatedName); // "Coinmunity.team"
 	}
 }

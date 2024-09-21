@@ -49,11 +49,11 @@ if (!PRIVATE_KEY) {
 const config: HardhatUserConfig = {
 	defaultNetwork: "hardhat",
 	networks: {
-		// hardhat: {
-		// 	forking: {
-		// 		url: SEPOLIA_TESTNET_RPC_URL,
-		// 	},
-		// },
+		hardhat: {
+			forking: {
+				url: SEPOLIA_TESTNET_RPC_URL,
+			},
+		},
 		localhost: {
 			url: "http://127.0.0.1:8545",
 		},

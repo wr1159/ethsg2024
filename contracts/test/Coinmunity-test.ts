@@ -43,6 +43,8 @@ describe("Coinmunity", () => {
 			deployer: signers.deployer,
 			user: signers.user,
 			accounts: await ethers.getSigners(),
+			reverseRegistrar,
+			ens
 		}
 	})
 
@@ -95,6 +97,18 @@ describe("Coinmunity", () => {
 			await synthTokenContract.addPlugin(tokenizedDelegationPluginAddress)
 			const pluginCount = await synthTokenContract.pluginsCount(user)
 			expect(pluginCount).to.greaterThan(0)
+		})
+	})
+
+	describe("ENS", () => {
+		it("Should be able to register primary name for ContinuousLinearToken", async () => {
+			const { erc721contractAddress, coinmunityContract, reverseRegistrar, ens } = await setupFixture()
+
+			const synthTokenAddress = await coinmunityContract.getTokenFromCollection(erc721contractAddress)
+			const reverseRegistrarConstract = await ethers.getContractAt("IReverseRegistrar", reverseRegistrar)
+			const node = await reverseRegistrarConstract.node(synthTokenAddress)
+			const ensConstract = await ethers.getContractAt("ENS", ens)
+			expect(await ensConstract.recordExists(node)).to.be.true
 		})
 	})
 })

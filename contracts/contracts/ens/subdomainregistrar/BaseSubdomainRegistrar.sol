@@ -231,8 +231,7 @@ abstract contract BaseSubdomainRegistrar {
                 "SubdomainRegistrar: Namehash on record do not match the name being registered"
             );
             resolver.functionCall(
-                records[i],
-                "SubdomainRegistrar: Failed to set Record"
+                records[i]
             );
         }
     }

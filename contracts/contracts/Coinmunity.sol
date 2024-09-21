@@ -5,6 +5,7 @@ import { ERC721Holder } from "@openzeppelin/contracts/token/ERC721/utils/ERC721H
 import { LinearBondingCurve } from "./LinearBondingCurve.sol";
 import { SynthToken } from "./SynthToken.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract Coinmunity is ERC721Holder {
 	IERC20 private weth;
@@ -50,7 +51,7 @@ contract Coinmunity is ERC721Holder {
 			nftExchangeRate
 		);
 		st.approve(address(lbc), 1000 ** 18);
-		lbc.init();
+		lbc.init(address(this));
 		address curveAddress = address(lbc);
 		address tokenAddress = address(st);
 		isCollectionLaunched[curveAddress] = true;
@@ -67,10 +68,13 @@ contract Coinmunity is ERC721Holder {
 	}
 
 	function buyWithNFT(address collectionAddress, uint256 tokenId) public {
+		IERC721 nft = IERC721(collectionAddress);
+		require(nft.ownerOf(tokenId) == msg.sender, "You don't own this NFT");
+		nft.safeTransferFrom(msg.sender, address(this), tokenId);
 		LinearBondingCurve lbc = LinearBondingCurve(
 			getCurveFromCollection(collectionAddress)
 		);
-		lbc.buyWithNFT(msg.sender, collectionAddress, tokenId);
+		lbc.buyWithNFT();
 	}
 
 	function getCurveFromCollection(

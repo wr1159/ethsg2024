@@ -71,9 +71,9 @@ abstract contract BondingCurve is
 	 * @dev must be atomic in one deployment script
 	 *
 	 */
-	function init() external override initializer {
+	function init(address coinmunity) external override initializer {
 		//deployer must approve token first
-		token.transferFrom(msg.sender, address(this), unwrap(cap));
+		token.transferFrom(coinmunity, address(this), unwrap(cap));
 		require(
 			cap.eq(ud(IERC20(token).balanceOf(address(this)))),
 			"BondingCurve: must send Token to the contract first"

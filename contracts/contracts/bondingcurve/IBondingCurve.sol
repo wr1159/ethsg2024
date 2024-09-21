@@ -19,7 +19,7 @@ interface IBondingCurve {
 
     // ----------- Governor only state changing api -----------
 
-    function init() external;
+    function init(address coinmunity) external;
 
     function allocate(uint256 amount, address to) external;
 

@@ -4,9 +4,10 @@ pragma solidity 0.8.24;
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { LinearCurve } from "./LinearCurve.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { ERC20Plugins } from "@1inch/token-plugins/contracts/ERC20Plugins.sol";
 
 /// @title ContinuousLinearToken
-contract ContinuousLinearToken is ERC20, LinearCurve, Ownable {
+contract ContinuousLinearToken is ERC20Plugins, LinearCurve, Ownable {
 	error InsufficientPaymentAmount();
 	error SaleFailed();
 
@@ -14,11 +15,14 @@ contract ContinuousLinearToken is ERC20, LinearCurve, Ownable {
 		string memory _name,
 		string memory _symbol,
 		uint256 _slope,
-		uint256 _initialPrice
+		uint256 _initialPrice,
+		uint256 _maxPlugins,
+		uint256 _pluginCallGasLimit
 	)
 		ERC20(_name, _symbol)
 		LinearCurve(_slope, _initialPrice)
 		Ownable(msg.sender)
+		ERC20Plugins(_maxPlugins, _pluginCallGasLimit)
 	{}
 
 	function buy(address to, uint256 amount) public payable {

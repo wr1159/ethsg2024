@@ -103,6 +103,9 @@ const config: HardhatUserConfig = {
 		owner: {
 			default: 0,
 		},
+		user: {
+			default: 1,
+		},
 	},
 	solidity: {
 		compilers: [

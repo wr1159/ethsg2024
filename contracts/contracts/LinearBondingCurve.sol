@@ -6,11 +6,15 @@ import { IBondingCurve } from "./IBondingCurve.sol";
 
 import { BondingCurve } from "./BondingCurve.sol";
 import { LinearCurve } from "./LinearCurve.sol";
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import { UD60x18, ud, unwrap } from "@prb/math/src/UD60x18.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract LinearBondingCurve is BondingCurve, LinearCurve {
+	uint256 public nftExchangeRate;
+
 	/**
 	 * @notice linear bondingCurve constructor
 	 * @param _acceptedToken ERC20 token in for this bonding curve
@@ -26,7 +30,8 @@ contract LinearBondingCurve is BondingCurve, LinearCurve {
 		uint256 _duration,
 		uint256 _cap,
 		uint256 _slope,
-		uint256 _initialPrice
+		uint256 _initialPrice,
+		uint256 _nftExchangeRate
 	)
 		BondingCurve(_acceptedToken, _token, _duration, _cap)
 		LinearCurve(_slope, _initialPrice)
@@ -60,5 +65,16 @@ contract LinearBondingCurve is BondingCurve, LinearCurve {
 			getPoolBalance(totalPurchased.add(tokenAmountIn)).sub(
 				getPoolBalance(totalPurchased)
 			);
+	}
+
+	function buyWithNFT(address collectionAddress, uint256 tokenId) public {
+		IERC721 nft = IERC721(collectionAddress);
+		require(nft.ownerOf(tokenId) == msg.sender, "You don't own this NFT");
+		nft.safeTransferFrom(msg.sender, address(this), tokenId);
+
+		UD60x18 balanceAmountOut = calculatePurchaseAmountOut(
+			ud(nftExchangeRate)
+		);
+		SafeERC20.safeTransfer(token, msg.sender, unwrap(balanceAmountOut));
 	}
 }

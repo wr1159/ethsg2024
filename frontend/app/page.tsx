@@ -1,5 +1,6 @@
 "use client";
 
+import { Community } from "@/components/community";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/context/ThemeProvider";
 
@@ -17,6 +18,7 @@ export default function Home() {
         >
             <main className="min-h-screen px-8 py-0 pb-12 flex-1 flex flex-col items-center">
                 <Navbar />
+                <Community />
             </main>
         </ThemeProvider>
     );

@@ -1,73 +1,67 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity 0.8.24;
 
-import {powu, sqrt} from "@prb/math/src/ud60x18/Math.sol";
-import {UD60x18, ud} from "@prb/math/src/UD60x18.sol";
+import { UD60x18, pow, ud, unwrap } from "@prb/math/src/UD60x18.sol";
+import { ILinearCurve } from "./ILinearCurve.sol";
 
-/**
- * @notice abstract contract for calcuting curve
- * @dev functioncal components could be used in derived contract
- *
- */
-contract LinearCurve {
-    /**w
-     * @notice the curve slope
-     * @dev refer to price = slope * currentTokenPurchased + initialPrice
-     *
-     */
-    UD60x18 public immutable slope;
+/// @title LinearCurve
+/// @notice See the documentation in {ILinearCurve}
+abstract contract LinearCurve is ILinearCurve {
+	/*//////////////////////////////////////////////////////////////////////////
+                                  PUBLIC STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice the token price when there purchased token is zero
-     * @dev refer to the instantaneous price = slope * currentTokenPurchased + initialPrice
-     *
-     */
-    UD60x18 public immutable initialPrice;
+	/// @inheritdoc ILinearCurve
+	UD60x18 public immutable override slope;
 
-    /**
-     * @notice BondingCurve constructor
-     * @param _slope slope for this bonding curve
-     * @param _initialPrice initial price for this bonding curve
-     *
-     */
-    constructor(uint256 _slope, uint256 _initialPrice) {
-        slope = ud(_slope);
-        initialPrice = ud(_initialPrice);
-    }
+	/// @inheritdoc ILinearCurve
+	UD60x18 public immutable override initialPrice;
 
-    /**
-     * @notice return instantaneous bonding curve price
-     * @return the instantaneous price = slope * currentTokenPurchased + initialPrice
-     *
-     */
-    function getLinearInstantaneousPrice(UD60x18 tokenSupply) public view returns (UD60x18) {
-        return slope.mul(tokenSupply).add(initialPrice);
-    }
+	/*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice return the pool balance or the amount of the reserve currency at the given token supply
-     * @param tokenSupply the token supply
-     * @return the total token price reported
-     * @dev The Integral of price regarding to tokensupply f(supply)
-     * @dev : The integral: pool balance = y = f(x = currentTokenPurchased) =  slope/2 * (currentTokenPurchased)^2 + initialPrice * (currentTokenPurchased)
-     *
-     */
-    function getPoolBalance(UD60x18 tokenSupply) public view returns (UD60x18) {
-        return slope.mul(powu(tokenSupply, 2)).div(ud(2e18)).add(tokenSupply.mul(initialPrice));
-    }
+	/// @dev Initializes the curve slope and the initial price.
+	constructor(uint256 _slope, uint256 _initialPrice) {
+		slope = ud(_slope);
+		initialPrice = ud(_initialPrice);
+	}
 
-    /**
-     * @notice return the token supply at the given pool balance
-     * @param poolBalance the pool balance
-     * @return the token supply reported
-     * @dev The Inverse of the integral of price regarding to tokensupply
-     * @dev The Inverse : token supply = x = f-1(y = poolBalance) =  (-b ± sqrt(b^2 + 2my)) / m
-     * @dev as token supply (x) can not be negative so f-1(y) = (-b + sqrt(b^2 + 2my)) / m
-     * @dev where m = slope and b = initial price
-     *
-     *
-     */
-    function getTokenSupply(UD60x18 poolBalance) public view returns (UD60x18) {
-        return (sqrt((initialPrice.powu(2)).add(ud(2e18).mul(slope).mul(poolBalance))).sub(initialPrice)).div(slope);
-    }
+	/*//////////////////////////////////////////////////////////////////////////
+                                   PUBLIC METHODS
+    //////////////////////////////////////////////////////////////////////////*/
+
+	/// @inheritdoc ILinearCurve
+	function getPrice(
+		uint256 currentSupply,
+		uint256 newSupply
+	) public view returns (uint256 price) {
+		UD60x18 q1 = _calculateIntegralAtPoint(newSupply);
+		UD60x18 q0 = _calculateIntegralAtPoint(currentSupply);
+
+		price = unwrap(q1 - q0);
+	}
+
+	/// @inheritdoc ILinearCurve
+	function getCurrentPrice(
+		uint256 currentSupply
+	) public view returns (uint256 price) {
+		return unwrap(initialPrice.add(slope.mul(ud(currentSupply))));
+	}
+
+	/*//////////////////////////////////////////////////////////////////////////
+                                   INTERNAL METHODS
+    //////////////////////////////////////////////////////////////////////////*/
+
+	/// @notice Calculates the integral at a specific point based on the linear curve formula
+	/// @dev The integral (I) is calculated as follows:
+	/// I(f(x) dx) = I(a + b*x) dx = I(a dx) + b*I(x dx) = a*x + (b*x^2)/2
+	function _calculateIntegralAtPoint(
+		uint256 x
+	) internal view returns (UD60x18) {
+		return
+			initialPrice.mul(ud(x)).add(
+				slope.mul(pow(ud(x), ud(2e18))).div(ud(2e18))
+			);
+	}
 }

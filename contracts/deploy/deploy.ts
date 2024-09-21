@@ -12,9 +12,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 	await hre.deployments.deploy("Coinmunity", {
 		from: deployer,
-		args: ["0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"],
+		args: [],
 		log: true,
 	})
-
 }
 export default func

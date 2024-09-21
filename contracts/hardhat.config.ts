@@ -51,21 +51,36 @@ const config: HardhatUserConfig = {
 	networks: {
 		hardhat: {
 			forking: {
-				url: SEPOLIA_TESTNET_RPC_URL,
+				url: RSK_TESTNET_RPC_URL,
 			},
 		},
 		localhost: {
 			url: "http://127.0.0.1:8545",
 		},
-		rskMainnet: {
-			url: RSK_MAINNET_RPC_URL,
-			chainId: 30,
-			gasPrice: 60000000,
+		sepolia: {
+			url: SEPOLIA_TESTNET_RPC_URL,
+			chainId: 11155111,
 			accounts: [PRIVATE_KEY],
 		},
 		rskTestnet: {
 			url: RSK_TESTNET_RPC_URL,
 			chainId: 31,
+			gasPrice: 60000000,
+			accounts: [PRIVATE_KEY],
+		},
+		airDaoTestnet: {
+			url: "https://network.ambrosus-test.io",
+			chainId: 22040,
+			accounts: [PRIVATE_KEY],
+		},
+		lineaSepolia: {
+			url: "https://rpc.sepolia.linea.build",
+			chainId: 59141,
+			accounts: [PRIVATE_KEY],
+		},
+		flowTestnet: {
+			url: "https://testnet.evm.nodes.onflow.org",
+			chainId: 545,
 			gasPrice: 60000000,
 			accounts: [PRIVATE_KEY],
 		},

@@ -38,7 +38,7 @@ contract Coinmunity is ERC721Holder {
 			priceIncrement,
 			initialPrice,
 			5, 
-			50000
+			500000
 		);
 		address tokenAddress = address(clt);
 		isCollectionLaunched[collectionAddress] = true;

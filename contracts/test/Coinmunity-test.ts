@@ -65,13 +65,33 @@ describe("Coinmunity", () => {
 				await setupFixture()
 
 			const synthTokenAddress = await coinmunityContract.getTokenFromCollection(erc721contractAddress)
-			const synthTokenContract = await ethers.getContractAt("MockERC20", synthTokenAddress)
+			const synthTokenContract = await ethers.getContractAt("ContinuousLinearToken", synthTokenAddress)
 
 			await erc721contract.approve(coinmunityContractAddress, 1)
 			await coinmunityContract.buyWithNFT(erc721contractAddress, 1)
 
 			const userBalance = await synthTokenContract.balanceOf(user)
 			expect(userBalance).to.greaterThan(parseEther("0"))
+		})
+	})
+
+	describe("Plugins", () => {
+		it("Should allow users to add plugins", async () => {
+			const { erc721contractAddress, coinmunityContract, deployer, user } = await setupFixture()
+
+			const synthTokenAddress = await coinmunityContract.getTokenFromCollection(erc721contractAddress)
+			const synthTokenContract = await ethers.getContractAt("ContinuousLinearToken", synthTokenAddress)
+
+			const tokenizedDelegationPlugin = await ethers.deployContract(
+				"TokenizedDelegationPlugin",
+				["Test", "test", synthTokenAddress, 5, 500000],
+				await ethers.getSigner(deployer)
+			)
+			const tokenizedDelegationPluginAddress = await tokenizedDelegationPlugin.getAddress()
+
+			await synthTokenContract.addPlugin(tokenizedDelegationPluginAddress)
+			const pluginCount = await synthTokenContract.pluginsCount(user)
+			expect(pluginCount).to.greaterThan(0)
 		})
 	})
 })

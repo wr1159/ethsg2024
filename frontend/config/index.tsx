@@ -6,6 +6,7 @@ import {
     flowTestnet,
     lineaSepolia,
     rskTestnet,
+    hardhat,
 } from "./other-networks";
 
 // Get projectId from https://cloud.reown.com
@@ -21,6 +22,7 @@ export const networks = [
     flowTestnet,
     airDaoTestnet,
     lineaSepolia,
+    hardhat,
 ];
 
 //Set up the Wagmi Adapter (Config)

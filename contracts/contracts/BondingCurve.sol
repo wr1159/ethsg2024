@@ -1,96 +1,182 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity ^0.8.19;
 
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { SynthToken } from "./SynthToken.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IBondingCurve} from "./IBondingCurve.sol";
 
-contract BondingCurve is Ownable {
+import {Errors} from "./Error.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Timed} from "./Timed.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
+import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-    SynthToken public token;
-    uint256 public initialPrice;
-    uint256 public currentPrice;
-    uint256 public priceIncrement;
-    uint256 public nftExchangeRate;
-    
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        uint256 _initialPrice,
-        uint256 _priceIncrement,
-        uint256 _nftExchangeRate
-    ) Ownable(msg.sender) {
-        token = new SynthToken( _name, _symbol, address(this)); // deploy ERC20 SynthToken
-        initialPrice = _initialPrice;
-        currentPrice = _initialPrice;
-        priceIncrement = _priceIncrement; // fixed gradient: every 1 native (eth) added how much does price change
-        nftExchangeRate = _nftExchangeRate; // fixed ex/rate for nft <> native
+import {UD60x18, ud, unwrap} from "@prb/math/src/UD60x18.sol";
+import {gte, isZero} from "@prb/math/src/ud60x18/Helpers.sol";
+
+abstract contract BondingCurve is IBondingCurve, Initializable, Pausable, Ownable2Step, Timed {
+    using SafeERC20 for IERC20;
+
+    /**
+     * @notice the ERC20 token sale for this bonding curve
+     *
+     */
+    IERC20 public immutable override token;
+
+    /**
+     * @notice the ERC20 accepted token for this bonding curve
+     *
+     */
+    IERC20 public immutable override acceptedToken;
+
+    /**
+     * @notice the total amount of sale token purchased on bonding curve
+     *
+     */
+    UD60x18 public override totalPurchased;
+
+    /**
+     * @notice the cap on how much sale token can be minted by the bonding curve
+     *
+     */
+    UD60x18 public override cap;
+
+    /**
+     * @notice BondingCurve constructor
+     * @param _acceptedToken ERC20 token in for this bonding curve
+     * @param _token ERC20 token sale out for this bonding curve
+     * @param _duration duration to sell
+     * @param _cap maximum token sold for this bonding curve to ensure security
+     *
+     */
+    constructor(IERC20 _acceptedToken, IERC20 _token, uint256 _duration, uint256 _cap) Timed(_duration) {
+        acceptedToken = _acceptedToken;
+        token = _token;
+        // start timer
+        _initTimed();
+        _setCap(ud(_cap));
     }
 
-    function buyWithNative(uint256 nativeAmount, address buyer) public {
-        uint256 tokensToBuy = getTokenAmount(nativeAmount);
-        require(tokensToBuy > 0, "Not enough ETH sent");
-
-        token.approve(address(this), tokensToBuy); 
-        token.transfer(buyer, tokensToBuy); // need to change to mint on the go
+    /**
+     * @notice init function to  be called after deployment
+     * @dev must be atomic in one deployment script
+     *
+     */
+    function init() external override initializer {
+        //deployer must approve token first
+        SafeERC20.safeTransferFrom(token, msg.sender, address(this), unwrap(cap));
+        require(
+            cap.eq(ud(IERC20(token).balanceOf(address(this)))), "BondingCurve: must send Token to the contract first"
+        );
     }
 
-    function buyWithNFT(address collectionAddress, uint256 tokenId, address buyer) public {
-        IERC721 nft = IERC721(collectionAddress);
-        require(nft.ownerOf(tokenId) == buyer, "You don't own this NFT");
-        
-        nft.safeTransferFrom(buyer, address(this), tokenId);
-        
-        uint256 nativeEquivalent = nftExchangeRate; // 1PP <> 1 ether
-        buyWithNative(nativeEquivalent, buyer);
+    /**
+     * @notice purchase token for accepted tokens
+     * @param to address to sale token
+     * @param amountIn amount of underlying accepted tokens input
+     *  @return amountOut amount of token sale received
+     *
+     */
+    function purchase(address to, uint256 amountIn)
+        external
+        payable
+        virtual
+        override
+        whenNotPaused
+        duringTime
+        returns (UD60x18 amountOut)
+    {
+        require(msg.value == 0, "BondingCurve: unexpected ETH input");
+        amountOut = _purchase(to, amountIn);
+
+        SafeERC20.safeTransferFrom(acceptedToken, msg.sender, address(this), amountIn);
+        SafeERC20.safeTransfer(token, to, unwrap(amountOut));
+
+        return amountOut;
     }
 
-    // Helper functions
-    function getTokenAmount(uint256 nativeAmount) public view returns (uint256) {
-        // to be implemented
+    /**
+     * @notice allocate held accepted ERC20 token
+     * @param amount the amount quantity of underlying token  to allocate
+     * @param to address destination
+     *
+     */
+    function allocate(uint256 amount, address to) external virtual override onlyOwner afterTime {
+        SafeERC20.safeTransfer(acceptedToken, to, amount);
+        emit Allocate(msg.sender, ud(amount));
     }
 
-    function sqrt(uint256 x) internal pure returns (uint256 y) {
-        uint256 z = (x + 1) / 2;
-        y = x;
-        while (z < y) {
-            y = z;
-            z = (x / z + z) / 2;
-        }
+    /**
+     * @notice pause pausable function
+     *
+     */
+    function pause() external onlyOwner {
+        _pause();
     }
 
-    // Getter functions
-    function getInitialPrice() public view returns (uint256) {
-        return initialPrice;
+    /**
+     * @notice unpause pausable function
+     *
+     */
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
-    function getPriceIncrement() public view returns (uint256) {
-        return priceIncrement;
+    /**
+     * @notice returns how close to the cap we are
+     *
+     */
+    function availableToSell() public view override returns (UD60x18) {
+        return cap.sub(totalPurchased);
     }
 
-    function getNftExchangeRate() public view returns (uint256) {
-        return nftExchangeRate;
+    /**
+     * @notice return current instantaneous bonding curve price
+     * @param tokenSupply the current amount of acceptable token purchased
+     * @return amountOut price reported
+     * @dev just use only one helper function from LinearCurve
+     *
+     */
+    function getCurrentPrice(UD60x18 tokenSupply) external view virtual returns (UD60x18);
+
+    /**
+     * @notice return amount of token sale received after a bonding curve purchase
+     * @param tokenAmountIn the amount of underlying used to purchase
+     * @return balanceAmountOut the amount of sale token received
+     * @dev retained poolBalance (i.e. after including the next set of added tokensupply) minus current poolBalance
+     *
+     */
+    function calculatePurchaseAmountOut(UD60x18 tokenAmountIn) public view virtual returns (UD60x18);
+
+    /**
+     * @notice balance of accepted token the bonding curve
+     * @return the amount of accepted token held in contract and ready to be allocated
+     *
+     */
+    function reserveBalance() public view virtual override returns (UD60x18) {
+        return ud(acceptedToken.balanceOf(address(this)));
     }
 
-    // Setter functions (onlyOwner)
-    function setInitialPrice(uint256 _newInitialPrice) public onlyOwner {
-        initialPrice = _newInitialPrice;
+    function _purchase(address to, uint256 tokenAmountIn) internal returns (UD60x18 saleTokenAmountOut) {
+        saleTokenAmountOut = calculatePurchaseAmountOut(ud(tokenAmountIn));
+
+        require(gte(availableToSell(), saleTokenAmountOut), "BondingCurve: exceeds cap");
+        _incrementTotalPurchased(saleTokenAmountOut);
+
+        emit Purchase(to, ud(tokenAmountIn), saleTokenAmountOut);
+        return saleTokenAmountOut;
     }
 
-    function setPriceIncrement(uint256 _newPriceIncrement) public onlyOwner {
-        priceIncrement = _newPriceIncrement;
+    function _incrementTotalPurchased(UD60x18 amount) internal {
+        totalPurchased = totalPurchased.add(amount);
     }
 
-    function setNftExchangeRate(uint256 _newRate) public onlyOwner {
-        nftExchangeRate = _newRate;
+    function _setCap(UD60x18 newCap) internal {
+        if (isZero(newCap)) revert Errors.ZeroNumberNotAllowed();
+
+        UD60x18 oldCap = cap;
+        cap = newCap;
+
+        emit CapUpdate(oldCap, newCap);
     }
-
-    // // Withdraw functions
-    // function withdraw() public onlyOwner {
-    //     payable(owner()).transfer(address(this).balance);
-    // }
-
-    // function withdrawNFT(address nftContract, uint256 tokenId) public onlyOwner {
-    //     IERC721(nftContract).safeTransferFrom(address(this), owner(), tokenId);
-    // }
 }

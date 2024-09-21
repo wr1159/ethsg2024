@@ -18,7 +18,8 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@openzeppelin/contracts": "^5.0.2"
+		"@openzeppelin/contracts": "^5.0.2",
+		"@prb/math/src": "^4.0.3"
 	},
 	"devDependencies": {
 		"@nomicfoundation/hardhat-chai-matchers": "^2.0.0",

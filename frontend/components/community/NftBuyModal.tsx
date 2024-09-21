@@ -47,6 +47,7 @@ export function NftBuyModal() {
         functionName: "balanceOf",
         address: nftAddressResolved,
         args: [account.address || "0x"],
+        query: { refetchInterval: 10000 },
     });
 
     const { data: tokensInfoArray } = useReadContracts({
@@ -58,7 +59,6 @@ export function NftBuyModal() {
             address: nftAddressResolved,
             args: [account.address || "0x", id],
         })),
-        query: { refetchInterval: 10000 },
     });
 
     const { data: isApproved } = useReadContract({
@@ -78,6 +78,7 @@ export function NftBuyModal() {
                 address: nftAddressResolved,
                 args: [coinmunityAddressResolved, true],
             });
+            return;
         }
         writeContract({
             abi: coinmunityAbi,
@@ -158,7 +159,7 @@ export function NftBuyModal() {
                         )}
                         <DialogFooter>
                             <Button type="submit" disabled={!selectedNft}>
-                                Confirm
+                                {isApproved ? "Confirm" : "Approve"}
                             </Button>
                         </DialogFooter>
                     </form>

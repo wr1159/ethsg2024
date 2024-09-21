@@ -29,11 +29,10 @@ import {
 
 export function TokenBuyModal() {
     const chainId = useChainId();
-    const { writeContract, data: hash, error, status } = useWriteContract();
+    const { writeContract, data: hash } = useWriteContract();
     const { isLoading: isConfirming } = useWaitForTransactionReceipt({
         hash,
     });
-    console.log(error, status);
 
     const [isOpen, setOpen] = useState(false);
     const [tokenAmount, setTokenAmount] = useState("");
@@ -77,9 +76,10 @@ export function TokenBuyModal() {
             address:
                 coinmunityAddress[chainId as keyof typeof coinmunityAddress],
             functionName: "buyWithNative",
-            args: [nftAddressResolved, inputAmount || BigInt(0)],
+            args: [nftAddressResolved, parseEther(tokenAmount) || BigInt(0)],
             value: inputAmount,
         });
+        setTokenAmount("");
     };
 
     return (
@@ -108,13 +108,13 @@ export function TokenBuyModal() {
                         )}
                         <Input
                             placeholder="Enter amount of C-noun to mint"
-                            className="mt-6"
+                            className="my-6"
                             required
                             onChange={(e) => setTokenAmount(e.target.value)}
                         />
 
                         {inputAmount && (
-                            <p className="ml-2 mt-4">
+                            <p className="ml-2">
                                 {`You will spend ${parseFloat(formatEther(inputAmount)).toPrecision(5)} ETH`}
                             </p>
                         )}

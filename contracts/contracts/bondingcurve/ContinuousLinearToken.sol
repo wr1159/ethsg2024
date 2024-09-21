@@ -9,7 +9,12 @@ import { ReverseClaimer } from "../ens/reverseRegistrar/ReverseClaimer.sol";
 import { ENS } from "../ens/registry/ENS.sol";
 
 /// @title ContinuousLinearToken
-contract ContinuousLinearToken is ERC20Plugins, LinearCurve, Ownable, ReverseClaimer {
+contract ContinuousLinearToken is
+	ERC20Plugins,
+	LinearCurve,
+	Ownable,
+	ReverseClaimer
+{
 	error InsufficientPaymentAmount();
 	error SaleFailed();
 
@@ -40,7 +45,7 @@ contract ContinuousLinearToken is ERC20Plugins, LinearCurve, Ownable, ReverseCla
 		}
 
 		// Interactions: mint the purchased amount of tokens
-		_mint({ account: to, value: amount });
+		mint(to, amount);
 	}
 
 	function sell(uint256 amount) public {

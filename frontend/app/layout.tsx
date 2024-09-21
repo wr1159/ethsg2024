@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { headers } from "next/headers"; // added
 import ContextProvider from "@/context";
+import { ThemeProvider } from "@/context/ThemeProvider";
 
 const sfProRounded = localFont({
     src: "./fonts/SF-Pro-Rounded-Bold.otf",
@@ -25,7 +26,16 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${sfProRounded.variable} antialiased`}>
-                <ContextProvider cookies={cookies}>{children}</ContextProvider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <ContextProvider cookies={cookies}>
+                        {children}
+                    </ContextProvider>
+                </ThemeProvider>
             </body>
         </html>
     );

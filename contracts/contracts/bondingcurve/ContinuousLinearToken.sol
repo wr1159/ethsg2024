@@ -5,9 +5,11 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { LinearCurve } from "./LinearCurve.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20Plugins } from "@1inch/token-plugins/contracts/ERC20Plugins.sol";
+import { ReverseClaimer } from "../ens/reverseRegistrar/ReverseClaimer.sol";
+import { ENS } from "../ens/registry/ENS.sol";
 
 /// @title ContinuousLinearToken
-contract ContinuousLinearToken is ERC20Plugins, LinearCurve, Ownable {
+contract ContinuousLinearToken is ERC20Plugins, LinearCurve, Ownable, ReverseClaimer {
 	error InsufficientPaymentAmount();
 	error SaleFailed();
 
@@ -17,12 +19,14 @@ contract ContinuousLinearToken is ERC20Plugins, LinearCurve, Ownable {
 		uint256 _slope,
 		uint256 _initialPrice,
 		uint256 _maxPlugins,
-		uint256 _pluginCallGasLimit
+		uint256 _pluginCallGasLimit,
+		ENS _ens
 	)
 		ERC20(_name, _symbol)
 		LinearCurve(_slope, _initialPrice)
 		Ownable(msg.sender)
 		ERC20Plugins(_maxPlugins, _pluginCallGasLimit)
+		ReverseClaimer(_ens, msg.sender) // coinmuity is the owner
 	{}
 
 	function buy(address to, uint256 amount) public payable {

@@ -27,10 +27,13 @@ describe("Coinmunity", () => {
 		const initialPrice = parseEther("0.01")
 		const priceIncrement = parseEther("0.01")
 		const nftExchangeRate = parseEther("0.01")
+		const ens = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" // Registry
+		const reverseRegistrar = "0xA0a1AbcDAe1a2a4A2EF8e9113Ff0e02DD81DC0C6" // ReverseRegistrar
+		const publicResolver = "0x8FADE66B79cC9f707aB26799354482EB93a5B7dD" // PublicResolver
 
 		const coinmunityContract = await ethers.deployContract("Coinmunity", await ethers.getSigner(signers.deployer))
 		const coinmunityContractAddress = await coinmunityContract.getAddress()
-		await coinmunityContract.launch(name, symbol, collectionAddress, initialPrice, priceIncrement, nftExchangeRate)
+		await coinmunityContract.launch(name, symbol, collectionAddress, initialPrice, priceIncrement, nftExchangeRate, ens, reverseRegistrar, publicResolver)
 
 		return {
 			erc721contract,

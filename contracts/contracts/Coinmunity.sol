@@ -5,6 +5,8 @@ import { ERC721Holder } from "@openzeppelin/contracts/token/ERC721/utils/ERC721H
 import { ContinuousLinearToken } from "./bondingcurve/ContinuousLinearToken.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { ENS } from "./ens/registry/ENS.sol";
+import { IReverseRegistrar } from "./ens/reverseRegistrar/IReverseRegistrar.sol";
 
 contract Coinmunity is ERC721Holder {
 	uint256 public nftExchangeRate;
@@ -24,7 +26,10 @@ contract Coinmunity is ERC721Holder {
 		address collectionAddress,
 		uint256 initialPrice,
 		uint256 priceIncrement,
-		uint256 _nftExchangeRate
+		uint256 _nftExchangeRate,
+		ENS ens,
+		address reverseRegistrar,
+		address publicResolver
 	) public {
 		require(
 			!isCollectionLaunched[collectionAddress],
@@ -38,9 +43,11 @@ contract Coinmunity is ERC721Holder {
 			priceIncrement,
 			initialPrice,
 			5, 
-			50000
+			50000,
+			ens
 		);
 		address tokenAddress = address(clt);
+		_registerName(tokenAddress, reverseRegistrar, publicResolver, name);
 		isCollectionLaunched[collectionAddress] = true;
 		nftToTokenAddress[collectionAddress] = tokenAddress;
 		emit Launched(collectionAddress, tokenAddress);
@@ -70,5 +77,17 @@ contract Coinmunity is ERC721Holder {
 		address collectionAddress
 	) public view returns (address) {
 		return nftToTokenAddress[collectionAddress];
+	}
+
+	function _registerName(
+		address addr,
+		address reverseRegistrar,
+		address publicResolver,
+		string memory name
+	) internal {
+		IReverseRegistrar reverseRegistrarContract = IReverseRegistrar(reverseRegistrar);
+		bytes memory concatenatedBytes = abi.encodePacked(name, ".team");
+        string memory concatenatedName = string(concatenatedBytes);
+		reverseRegistrarContract.setNameForAddr(addr, address(this), publicResolver, concatenatedName); // "pudgypenguins.team"
 	}
 }

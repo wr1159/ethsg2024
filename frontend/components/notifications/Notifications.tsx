@@ -22,12 +22,15 @@ function Notifications() {
                     notifications.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-2">
+            <CardContent className="grid grid-cols-2 gap-4">
                 {!notifications?.length ? (
                     <p>No notifications yet.</p>
                 ) : (
                     notifications.map(({ id, ...message }) => (
-                        <div key={id} className="border rounded p-4 min-h-32">
+                        <div
+                            key={id}
+                            className="border rounded-lg p-4 min-h-32"
+                        >
                             <p className="text-destructive">
                                 {!message.isRead && "UNREAD"}
                             </p>

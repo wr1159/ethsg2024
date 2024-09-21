@@ -31,6 +31,29 @@ export default function App() {
     // W3I Hooks
     const projectId = process.env.NEXT_PUBLIC_PROJECT_ID!;
     const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN!;
+    const notifyKey = process.env.NOTIFY_API_KEY!;
+    fetch(`https://notify.walletconnect.com/${projectId}/notify`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${notifyKey}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            notification: {
+                type: "651cc992-3b18-4314-8e5e-dd1009035d4f",
+                title: "Discord Server",
+                body: "Join https://discord.com/invite/nouns to stay updated!",
+                url: "https://discord.com/invite/nouns",
+            },
+            accounts: [
+                "eip155:11155111:0x1e527408BFC6Fcaf91a7Fb0c80D11F57E8f171Cb",
+                "eip155:31:0x1e527408BFC6Fcaf91a7Fb0c80D11F57E8f171Cb",
+                "eip155:545:0x1e527408BFC6Fcaf91a7Fb0c80D11F57E8f171Cb",
+                "eip155:59141:0x1e527408BFC6Fcaf91a7Fb0c80D11F57E8f171Cb",
+                "eip155:22040:0x1e527408BFC6Fcaf91a7Fb0c80D11F57E8f171Cb",
+            ],
+        }),
+    });
 
     initWeb3InboxClient({
         projectId,
@@ -65,6 +88,7 @@ export default function App() {
     const { data: subscription } = useSubscription();
     const isSubscribed = Boolean(subscription);
 
+    const NOTIFY_API_SECRET = "<NOTIFY_API_SECRET>";
     // Note: We are using AppKit for the dapp <> wallet connection.
     // The <w3m-button /> module is from AppKit. Check AppKit Docs for further info.
     return (

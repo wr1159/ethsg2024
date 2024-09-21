@@ -37,7 +37,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 		erc721Deployment.address,
 		initialPrice,
 		priceIncrement,
-		nftExchangeRate
+		nftExchangeRate,
+		"0x00000000000c2e074ec69a0dfb2997ba6c7d2e1e",
+		"0xa0a1abcdae1a2a4a2ef8e9113ff0e02dd81dc0c6",
+		"0x8fade66b79cc9f707ab26799354482eb93a5b7dd"
 	)
 }
 export default func

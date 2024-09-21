@@ -33,7 +33,17 @@ describe("Coinmunity", () => {
 
 		const coinmunityContract = await ethers.deployContract("Coinmunity", await ethers.getSigner(signers.deployer))
 		const coinmunityContractAddress = await coinmunityContract.getAddress()
-		await coinmunityContract.launch(name, symbol, collectionAddress, initialPrice, priceIncrement, nftExchangeRate, ens, reverseRegistrar, publicResolver)
+		await coinmunityContract.launch(
+			name,
+			symbol,
+			collectionAddress,
+			initialPrice,
+			priceIncrement,
+			nftExchangeRate,
+			ens,
+			reverseRegistrar,
+			publicResolver
+		)
 
 		return {
 			erc721contract,

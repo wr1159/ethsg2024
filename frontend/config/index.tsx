@@ -1,33 +1,36 @@
-import { defaultWagmiConfig } from "@web3modal/wagmi/react/config";
-import { cookieStorage, createStorage } from "wagmi";
-import { mainnet, arbitrum, sepolia, hardhat } from "wagmi/chains";
+import { cookieStorage, createStorage } from "@wagmi/core";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+import { sepolia } from "@reown/appkit/networks";
+import {
+    airDaoTestnet,
+    flowTestnet,
+    lineaSepolia,
+    rskTestnet,
+} from "./other-networks";
 
-// Get projectId from <https://cloud.reown.com>
+// Get projectId from https://cloud.reown.com
 export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
-if (!projectId) throw new Error("Project ID is not defined");
+if (!projectId) {
+    throw new Error("Project ID is not defined");
+}
 
-const metadata = {
-    name: "AppKit example",
-    description: "AppKit Example",
-    url: "",
-    icons: ["https://avatars.githubusercontent.com/u/37784886"],
-};
+export const networks = [
+    sepolia,
+    rskTestnet,
+    flowTestnet,
+    airDaoTestnet,
+    lineaSepolia,
+];
 
-// Create wagmiConfig
-const chains = [mainnet, arbitrum, sepolia, hardhat] as const;
-export const config = defaultWagmiConfig({
-    chains,
-    projectId,
-    metadata,
-    auth: {
-        email: true,
-        socials: ["google", "x", "github", "discord", "apple"],
-        showWallets: true,
-        walletFeatures: true,
-    },
-    ssr: true,
+//Set up the Wagmi Adapter (Config)
+export const wagmiAdapter = new WagmiAdapter({
     storage: createStorage({
         storage: cookieStorage,
     }),
+    ssr: true,
+    projectId,
+    networks,
 });
+
+export const config = wagmiAdapter.wagmiConfig;

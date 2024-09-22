@@ -51,7 +51,7 @@ const config: HardhatUserConfig = {
 	networks: {
 		hardhat: {
 			forking: {
-				url: RSK_TESTNET_RPC_URL,
+				url: SEPOLIA_TESTNET_RPC_URL,
 			},
 		},
 		localhost: {

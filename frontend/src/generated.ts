@@ -133,7 +133,9 @@ export const baseSubdomainRegistrarAbi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- *
+ * - [__View Contract on Rootstock Testnet Rsk Explorer__](https://explorer.testnet.rootstock.io/address/0x892ae2d81777B4D2Ae82Ca150E7f56f5D392B259)
+ * -
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF4A48a6DbCfC9547A1661cF8B5762d2A7451AeE5)
  */
 export const coinmunityAbi = [
   {
@@ -237,14 +239,21 @@ export const coinmunityAbi = [
 ] as const
 
 /**
- *
+ * - [__View Contract on Rootstock Testnet Rsk Explorer__](https://explorer.testnet.rootstock.io/address/0x892ae2d81777B4D2Ae82Ca150E7f56f5D392B259)
+ * -
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF4A48a6DbCfC9547A1661cF8B5762d2A7451AeE5)
  */
 export const coinmunityAddress = {
+  31: '0x892ae2d81777B4D2Ae82Ca150E7f56f5D392B259',
+  22040: '0x8ab1c3e845D2c96E9e032EEF798cD3bc551F1E8a',
   31337: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+  11155111: '0xF4A48a6DbCfC9547A1661cF8B5762d2A7451AeE5',
 } as const
 
 /**
- *
+ * - [__View Contract on Rootstock Testnet Rsk Explorer__](https://explorer.testnet.rootstock.io/address/0x892ae2d81777B4D2Ae82Ca150E7f56f5D392B259)
+ * -
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF4A48a6DbCfC9547A1661cF8B5762d2A7451AeE5)
  */
 export const coinmunityConfig = {
   address: coinmunityAddress,
@@ -7179,7 +7188,9 @@ export const mockErc20Abi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- *
+ * - [__View Contract on Rootstock Testnet Rsk Explorer__](https://explorer.testnet.rootstock.io/address/0xBc59fb0E44F80C13f5988F0d57b2b866a74913Cb)
+ * -
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x6d601b3a60Ec0a08e61dC7084C7EDAa457E77476)
  */
 export const mockErc721Abi = [
   {
@@ -7583,14 +7594,21 @@ export const mockErc721Abi = [
 ] as const
 
 /**
- *
+ * - [__View Contract on Rootstock Testnet Rsk Explorer__](https://explorer.testnet.rootstock.io/address/0xBc59fb0E44F80C13f5988F0d57b2b866a74913Cb)
+ * -
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x6d601b3a60Ec0a08e61dC7084C7EDAa457E77476)
  */
 export const mockErc721Address = {
+  31: '0xBc59fb0E44F80C13f5988F0d57b2b866a74913Cb',
+  22040: '0xabdf605A52b372c6aC2c63399E0D5A3A481fb869',
   31337: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+  11155111: '0x6d601b3a60Ec0a08e61dC7084C7EDAa457E77476',
 } as const
 
 /**
- *
+ * - [__View Contract on Rootstock Testnet Rsk Explorer__](https://explorer.testnet.rootstock.io/address/0xBc59fb0E44F80C13f5988F0d57b2b866a74913Cb)
+ * -
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x6d601b3a60Ec0a08e61dC7084C7EDAa457E77476)
  */
 export const mockErc721Config = {
   address: mockErc721Address,
